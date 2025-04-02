@@ -1,4 +1,6 @@
 
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "@/components/NavBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,12 @@ import ProfileCard from "@/components/ProfileCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Friends = () => {
+  const navigate = useNavigate();
+  
+  const handleFindNewBuddies = () => {
+    navigate("/buddy-match");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
@@ -27,7 +35,10 @@ const Friends = () => {
                   className="pl-10"
                 />
               </div>
-              <Button className="bg-fitness-primary hover:bg-fitness-secondary">
+              <Button 
+                className="bg-fitness-primary hover:bg-fitness-secondary"
+                onClick={handleFindNewBuddies}
+              >
                 <UserPlus size={16} className="mr-2" />
                 Find New Buddies
               </Button>

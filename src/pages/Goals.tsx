@@ -1,12 +1,25 @@
 
+import React, { useState } from "react";
 import NavBar from "@/components/NavBar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Plus, Target } from "lucide-react";
 import GoalSelection from "@/components/GoalSelection";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const Goals = () => {
+  const [showGoalDialog, setShowGoalDialog] = useState(false);
+  
+  const handleAddNewGoal = () => {
+    setShowGoalDialog(true);
+  };
+
+  const handleUpdateProgress = () => {
+    toast.success("Progress updated successfully!");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
@@ -38,7 +51,7 @@ const Goals = () => {
                   <Progress value={65} className="h-2" />
                   <p className="text-sm text-muted-foreground">Goal: Lose 10 pounds by June 30th</p>
                   <div className="flex justify-end">
-                    <Button variant="ghost" size="sm">Update Progress</Button>
+                    <Button variant="ghost" size="sm" onClick={handleUpdateProgress}>Update Progress</Button>
                   </div>
                 </div>
               </CardContent>
@@ -68,10 +81,22 @@ const Goals = () => {
             </Card>
             
             <div className="flex justify-center">
-              <Button className="gap-2">
-                <Plus size={16} />
-                Add New Goal
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="gap-2" onClick={handleAddNewGoal}>
+                    <Plus size={16} />
+                    Add New Goal
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Set a New Goal</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <GoalSelection />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
           

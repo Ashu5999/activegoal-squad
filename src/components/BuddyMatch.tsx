@@ -1,7 +1,8 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import ProfileCard from "./ProfileCard";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface BuddyProfile {
   id: string;
@@ -53,6 +54,8 @@ const BuddyMatch = () => {
 
   const handleAddBuddy = (id: string) => {
     setSelectedBuddies([...selectedBuddies, id]);
+    toast.success(`Added ${buddies.find(b => b.id === id)?.name} as a fitness buddy!`);
+    
     if (currentIndex < buddies.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }

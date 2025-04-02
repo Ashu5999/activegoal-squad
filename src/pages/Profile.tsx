@@ -1,4 +1,6 @@
 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "@/components/NavBar";
 import ProfileCard from "@/components/ProfileCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Dumbbell, Medal, Target, TrendingUp } from "lucide-react";
 
 const Profile = () => {
+  const navigate = useNavigate();
+  
+  const handleEditProfile = () => {
+    navigate("/settings");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
@@ -72,7 +80,7 @@ const Profile = () => {
                     </div>
                     
                     <div className="flex justify-end mt-4">
-                      <Button variant="outline">Edit Profile</Button>
+                      <Button variant="outline" onClick={handleEditProfile}>Edit Profile</Button>
                     </div>
                   </TabsContent>
                   

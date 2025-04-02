@@ -1,9 +1,12 @@
 
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Dumbbell, MapPin, Users } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProfileCardProps {
   name: string;
@@ -24,6 +27,16 @@ const ProfileCard = ({
   workoutCount, 
   isCurrentUser = false 
 }: ProfileCardProps) => {
+  const navigate = useNavigate();
+
+  const handleEditProfile = () => {
+    navigate("/settings");
+  };
+
+  const handleAddBuddy = () => {
+    toast.success(`Added ${name} as a fitness buddy!`);
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-0">
@@ -61,9 +74,14 @@ const ProfileCard = ({
       </CardContent>
       <CardFooter className="flex justify-center">
         {isCurrentUser ? (
-          <Button variant="outline" size="sm">Edit Profile</Button>
+          <Button variant="outline" size="sm" onClick={handleEditProfile}>Edit Profile</Button>
         ) : (
-          <Button variant="default" size="sm" className="bg-fitness-primary hover:bg-fitness-secondary">
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="bg-fitness-primary hover:bg-fitness-secondary"
+            onClick={handleAddBuddy}
+          >
             Add Buddy
           </Button>
         )}
