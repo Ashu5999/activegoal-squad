@@ -1,9 +1,11 @@
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Clock, Heart, MessageSquare, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface WorkoutCardProps {
   user: {
@@ -25,10 +27,33 @@ const WorkoutCard = ({
   duration,
   timestamp,
   description,
-  likes,
+  likes: initialLikes,
   comments,
-  hasLiked = false,
+  hasLiked: initialHasLiked = false,
 }: WorkoutCardProps) => {
+  const [hasLiked, setHasLiked] = useState(initialHasLiked);
+  const [likes, setLikes] = useState(initialLikes);
+
+  const handleLike = () => {
+    if (hasLiked) {
+      setLikes(likes - 1);
+      setHasLiked(false);
+      toast.info("Removed like from post");
+    } else {
+      setLikes(likes + 1);
+      setHasLiked(true);
+      toast.success("Liked post");
+    }
+  };
+
+  const handleComment = () => {
+    toast.info("Comment feature coming soon!");
+  };
+
+  const handleShare = () => {
+    toast.success("Workout shared!");
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -56,15 +81,20 @@ const WorkoutCard = ({
         </div>
       </CardContent>
       <CardFooter className="flex justify-between pt-2 border-t">
-        <Button variant="ghost" size="sm" className={hasLiked ? "text-fitness-primary" : ""}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className={hasLiked ? "text-fitness-primary" : ""}
+          onClick={handleLike}
+        >
           <Heart size={16} className="mr-1" fill={hasLiked ? "currentColor" : "none"} /> 
           <span>{likes}</span>
         </Button>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={handleComment}>
           <MessageSquare size={16} className="mr-1" /> 
           <span>{comments}</span>
         </Button>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={handleShare}>
           <Share2 size={16} />
         </Button>
       </CardFooter>

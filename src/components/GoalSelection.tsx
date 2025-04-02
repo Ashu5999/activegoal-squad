@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Activity, Dumbbell, Heart, Trophy, Weight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Goal {
   id: string;
@@ -46,6 +48,14 @@ const goals: Goal[] = [
 
 const GoalSelection = () => {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleFindBuddies = () => {
+    if (selectedGoal) {
+      toast.success(`Goal selected: ${goals.find(goal => goal.id === selectedGoal)?.title}`);
+      navigate("/buddy-match");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -86,6 +96,7 @@ const GoalSelection = () => {
         <Button 
           className="bg-fitness-primary hover:bg-fitness-secondary" 
           disabled={!selectedGoal}
+          onClick={handleFindBuddies}
         >
           Find My Fitness Buddies
         </Button>
