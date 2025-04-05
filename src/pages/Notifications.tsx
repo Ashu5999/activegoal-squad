@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import NavBar from "@/components/NavBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, MessageSquare, ThumbsUp, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 interface NotificationProps {
   type: 'like' | 'comment' | 'request' | 'goal';
@@ -68,8 +69,36 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
     }
   };
   
+  const handleClick = () => {
+    if (type !== 'request') {
+      toast(`Viewing details for ${user.name}'s ${type}`, {
+        description: content,
+        position: "bottom-right",
+      });
+    }
+  };
+  
+  const handleAccept = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`You are now buddies with ${user.name}!`, {
+      description: "You can now schedule workouts together.",
+      position: "bottom-right",
+    });
+  };
+  
+  const handleDecline = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.error(`Buddy request from ${user.name} declined.`, {
+      description: "You won't receive notifications from this user.",
+      position: "bottom-right",
+    });
+  };
+  
   return (
-    <div className={`p-4 ${!read ? 'bg-fitness-primary/5' : ''}`}>
+    <div 
+      className={`p-4 ${!read ? 'bg-fitness-primary/5' : ''} hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors`}
+      onClick={handleClick}
+    >
       <div className="flex gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={user.image} />
@@ -89,8 +118,20 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
           
           {type === 'request' && (
             <div className="flex gap-2 mt-2">
-              <Button size="sm" className="bg-fitness-primary hover:bg-fitness-secondary">Accept</Button>
-              <Button size="sm" variant="outline">Decline</Button>
+              <Button 
+                size="sm" 
+                className="bg-fitness-primary hover:bg-fitness-secondary"
+                onClick={handleAccept}
+              >
+                Accept
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleDecline}
+              >
+                Decline
+              </Button>
             </div>
           )}
         </div>
@@ -100,6 +141,15 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
 };
 
 const Notifications = () => {
+  const [notificationsList, setNotificationsList] = useState(notifications);
+  
+  const markAllAsRead = () => {
+    setNotificationsList(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+    toast.success('All notifications marked as read');
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
@@ -109,15 +159,15 @@ const Notifications = () => {
             <h1 className="text-3xl font-bold mb-2">Notifications</h1>
             <p className="text-muted-foreground">Stay updated with your fitness buddies</p>
           </div>
-          <Button variant="outline">Mark All as Read</Button>
+          <Button variant="outline" onClick={markAllAsRead}>Mark All as Read</Button>
         </div>
         
         <Card>
           <CardContent className="p-0 divide-y">
-            {notifications.map((notification, index) => (
+            {notificationsList.map((notification, index) => (
               <React.Fragment key={index}>
                 <NotificationItem {...notification} />
-                {index < notifications.length - 1 && <Separator />}
+                {index < notificationsList.length - 1 && <Separator />}
               </React.Fragment>
             ))}
           </CardContent>
