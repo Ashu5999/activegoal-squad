@@ -1,182 +1,468 @@
 
-import React, { useState } from "react";
-import ProfileCard from "./ProfileCard";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Medal } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Users, MapPin, Calendar, Search, Heart, Filter, Clock, Medal, Dumbbell } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
 
-interface BuddyProfile {
-  id: string;
-  name: string;
-  location: string;
-  goal: string;
-  companions: number;
-  image: string;
-  workoutCount: number;
-  compatibilityScore: number;
-}
-
-const buddies: BuddyProfile[] = [
+// Sample data for matches
+const dummyMatches = [
   {
-    id: "1",
-    name: "Jessica Lee",
-    location: "Boston, MA",
-    goal: "Weight Loss",
-    companions: 18,
-    image: "https://i.pravatar.cc/150?img=5",
-    workoutCount: 157,
-    compatibilityScore: 92
+    id: 1,
+    name: "Sarah Johnson",
+    age: 28,
+    location: "2.3 miles away",
+    goals: ["Weight Loss", "Cardio"],
+    availability: "Evenings & Weekends",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    bio: "Love running and HIIT workouts. Looking for a consistent gym partner!",
+    experience: "Intermediate"
   },
   {
-    id: "2",
-    name: "David Kim",
-    location: "San Francisco, CA",
-    goal: "Weight Loss",
-    companions: 24,
-    image: "https://i.pravatar.cc/150?img=12",
-    workoutCount: 203,
-    compatibilityScore: 87
+    id: 2,
+    name: "Michael Chen",
+    age: 32,
+    location: "1.5 miles away",
+    goals: ["Muscle Gain", "Strength"],
+    availability: "Mornings",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    bio: "Passionate about weightlifting. Can help with proper form and technique.",
+    experience: "Advanced"
   },
   {
-    id: "3",
-    name: "Maria Garcia",
-    location: "Chicago, IL",
-    goal: "Weight Loss",
-    companions: 12,
-    image: "https://i.pravatar.cc/150?img=9",
-    workoutCount: 89,
-    compatibilityScore: 85
+    id: 3,
+    name: "Aisha Patel",
+    age: 26,
+    location: "3.7 miles away",
+    goals: ["General Fitness", "Flexibility"],
+    availability: "Afternoons",
+    avatar: "https://i.pravatar.cc/150?img=5",
+    bio: "Yoga instructor looking for friends to try new workout classes with.",
+    experience: "Expert"
+  },
+  {
+    id: 4,
+    name: "James Wilson",
+    age: 30,
+    location: "0.8 miles away",
+    goals: ["Endurance", "Marathon Training"],
+    availability: "Early mornings & evenings",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    bio: "Training for my third marathon. Looking for running buddies!",
+    experience: "Intermediate"
   }
 ];
 
-const BuddyMatch = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedBuddies, setSelectedBuddies] = useState<string[]>([]);
-  const [direction, setDirection] = useState(0);
+// Sample workouts for planned activities
+const suggestedWorkouts = [
+  {
+    id: 1,
+    title: "Morning HIIT",
+    type: "High Intensity",
+    duration: "30 mins",
+    participants: 3,
+    time: "6:30 AM",
+    location: "Central Park",
+    description: "Start your day with an energizing HIIT session"
+  },
+  {
+    id: 2,
+    title: "Strength Training",
+    type: "Weights",
+    duration: "45 mins",
+    participants: 2,
+    time: "5:30 PM",
+    location: "Gold's Gym",
+    description: "Focus on upper body strength and proper form"
+  },
+  {
+    id: 3,
+    title: "Yoga Flow",
+    type: "Flexibility",
+    duration: "60 mins",
+    participants: 4,
+    time: "7:00 PM",
+    location: "Serenity Studio",
+    description: "Relax and improve flexibility after a long day"
+  }
+];
 
-  const handleAddBuddy = (id: string) => {
-    setSelectedBuddies([...selectedBuddies, id]);
-    toast.success(`Added ${buddies.find(b => b.id === id)?.name} as a fitness buddy!`, {
-      icon: "👍",
-    });
+const BuddyMatchComponent = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [distance, setDistance] = useState([5]);
+  const [availabilityFilter, setAvailabilityFilter] = useState<string[]>([]);
+  const [experienceFilter, setExperienceFilter] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [isVirtual, setIsVirtual] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("find");
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleDistanceChange = (value: number[]) => {
+    setDistance(value);
+  };
+
+  const toggleAvailability = (time: string) => {
+    setAvailabilityFilter(prev => 
+      prev.includes(time) 
+        ? prev.filter(t => t !== time) 
+        : [...prev, time]
+    );
+  };
+
+  const toggleExperience = (level: string) => {
+    setExperienceFilter(prev => 
+      prev.includes(level) 
+        ? prev.filter(l => l !== level) 
+        : [...prev, level]
+    );
+  };
+
+  const handleConnect = (id: number) => {
+    toast.success("Connection request sent!");
+  };
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(matchId => matchId !== id) 
+        : [...prev, id]
+    );
+  };
+
+  const joinWorkout = (id: number) => {
+    toast.success("You've joined the workout! Check your schedule.");
+  };
+
+  const filteredMatches = dummyMatches.filter(match => {
+    // Apply search filter
+    if (searchQuery && !match.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
+        !match.goals.some(goal => goal.toLowerCase().includes(searchQuery.toLowerCase()))) {
+      return false;
+    }
     
-    if (currentIndex < buddies.length - 1) {
-      setDirection(1);
-      setCurrentIndex(currentIndex + 1);
+    // Apply experience filter
+    if (experienceFilter.length > 0 && !experienceFilter.includes(match.experience)) {
+      return false;
     }
-  };
-
-  const handleSkip = () => {
-    if (currentIndex < buddies.length - 1) {
-      setDirection(1);
-      setCurrentIndex(currentIndex + 1);
+    
+    // Apply availability filter
+    if (availabilityFilter.length > 0 && 
+        !availabilityFilter.some(time => match.availability.includes(time))) {
+      return false;
     }
-  };
-
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setDirection(-1);
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const currentBuddy = buddies[currentIndex];
-  const isLastBuddy = currentIndex === buddies.length - 1;
-  const isFirstBuddy = currentIndex === 0;
+    
+    return true;
+  });
 
   return (
-    <div className="max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-fitness-primary to-fitness-secondary bg-clip-text text-transparent animate-pulse">Find Fitness Buddies</h2>
-        <p className="text-muted-foreground mt-2">
-          We've matched you with people who share your goals
-        </p>
-      </div>
-
-      <div className="relative">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, x: direction > 0 ? 300 : -300 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction > 0 ? -300 : 300 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="mb-8"
-          >
-            <div className="absolute top-4 right-4 z-10">
-              <div className="bg-gradient-to-r from-fitness-primary to-fitness-secondary text-white font-bold rounded-full h-16 w-16 flex items-center justify-center shadow-lg border-2 border-white">
-                <div className="flex flex-col items-center">
-                  <Medal size={16} />
-                  <span className="text-lg">{currentBuddy.compatibilityScore}%</span>
+    <div className="space-y-6">
+      <Tabs defaultValue="find" className="w-full" onValueChange={setSelectedTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="find" className="flex items-center gap-2">
+            <Search size={16} />
+            Find Buddies
+          </TabsTrigger>
+          <TabsTrigger value="favorites" className="flex items-center gap-2">
+            <Heart size={16} />
+            Favorites
+          </TabsTrigger>
+          <TabsTrigger value="workouts" className="flex items-center gap-2">
+            <Calendar size={16} />
+            Group Workouts
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="find" className="space-y-4 pt-4">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Search by name, goals or location..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full"
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="md:w-auto w-full flex items-center gap-2"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter size={16} />
+              Filters
+            </Button>
+          </div>
+          
+          {showFilters && (
+            <Card className="mt-4 mb-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Distance ({distance[0]} miles)</h3>
+                    <Slider
+                      value={distance}
+                      max={25}
+                      step={1}
+                      onValueChange={handleDistanceChange}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Availability</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {["Mornings", "Afternoons", "Evenings", "Weekends"].map((time) => (
+                        <Button
+                          key={time}
+                          variant={availabilityFilter.includes(time) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleAvailability(time)}
+                          className={availabilityFilter.includes(time) ? "bg-fitness-primary" : ""}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Experience Level</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {["Beginner", "Intermediate", "Advanced", "Expert"].map((level) => (
+                        <Button
+                          key={level}
+                          variant={experienceFilter.includes(level) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleExperience(level)}
+                          className={experienceFilter.includes(level) ? "bg-fitness-primary" : ""}
+                        >
+                          {level}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="virtual"
+                      checked={isVirtual}
+                      onCheckedChange={setIsVirtual}
+                    />
+                    <Label htmlFor="virtual">Virtual workouts only</Label>
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredMatches.map((match) => (
+              <Card key={match.id} className="overflow-hidden hover:shadow-lg transition-all">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12 border-2 border-purple-200">
+                        <img src={match.avatar} alt={match.name} />
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-lg">{match.name}, {match.age}</CardTitle>
+                        <CardDescription className="flex items-center gap-1">
+                          <MapPin size={14} /> {match.location}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`rounded-full ${favorites.includes(match.id) ? 'text-pink-500' : ''}`}
+                      onClick={() => toggleFavorite(match.id)}
+                    >
+                      <Heart fill={favorites.includes(match.id) ? 'currentColor' : 'none'} size={18} />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p className="text-sm mb-2">{match.bio}</p>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {match.goals.map((goal, index) => (
+                      <span 
+                        key={index} 
+                        className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 rounded-full px-2 py-1"
+                      >
+                        {goal}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock size={14} />
+                      <span>{match.availability}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Medal size={14} />
+                      <span>{match.experience}</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-2">
+                  <Button 
+                    onClick={() => handleConnect(match.id)}
+                    className="w-full bg-fitness-primary hover:bg-fitness-primary/90"
+                  >
+                    Connect
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="favorites" className="pt-4">
+          {favorites.length === 0 ? (
+            <div className="text-center py-10">
+              <Heart size={40} className="mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
+              <p className="text-muted-foreground">Heart your favorite potential workout buddies to see them here</p>
+              <Button 
+                className="mt-4 bg-fitness-primary" 
+                onClick={() => setSelectedTab("find")}
+              >
+                Find buddies
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dummyMatches
+                .filter(match => favorites.includes(match.id))
+                .map((match) => (
+                  <Card key={match.id} className="overflow-hidden hover:shadow-lg transition-all">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12 border-2 border-purple-200">
+                            <img src={match.avatar} alt={match.name} />
+                          </Avatar>
+                          <div>
+                            <CardTitle className="text-lg">{match.name}, {match.age}</CardTitle>
+                            <CardDescription className="flex items-center gap-1">
+                              <MapPin size={14} /> {match.location}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-pink-500 rounded-full"
+                          onClick={() => toggleFavorite(match.id)}
+                        >
+                          <Heart fill="currentColor" size={18} />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <p className="text-sm mb-2">{match.bio}</p>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {match.goals.map((goal, index) => (
+                          <span 
+                            key={index} 
+                            className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 rounded-full px-2 py-1"
+                          >
+                            {goal}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-2">
+                      <Button 
+                        onClick={() => handleConnect(match.id)}
+                        className="w-full bg-fitness-primary hover:bg-fitness-primary/90"
+                      >
+                        Message
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))
+              }
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="workouts" className="pt-4">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Upcoming Group Workouts</h3>
+              <Button variant="outline" size="sm" className="gap-1">
+                <Calendar size={16} />
+                My Schedule
+              </Button>
             </div>
             
-            <ProfileCard
-              name={currentBuddy.name}
-              location={currentBuddy.location}
-              goal={currentBuddy.goal}
-              companions={currentBuddy.companions}
-              image={currentBuddy.image}
-              workoutCount={currentBuddy.workoutCount}
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="flex gap-4 justify-center mt-6">
-          <Button 
-            variant="outline" 
-            onClick={handlePrevious} 
-            disabled={isFirstBuddy}
-            className="border-fitness-primary text-fitness-primary hover:bg-fitness-primary hover:text-white"
-          >
-            <ChevronLeft className="mr-1" size={18} /> Previous
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={handleSkip} 
-            disabled={isLastBuddy}
-            className="border-fitness-primary text-fitness-primary hover:bg-fitness-primary hover:text-white"
-          >
-            Skip <ChevronRight className="ml-1" size={18} />
-          </Button>
-          
-          <Button 
-            className="bg-gradient-to-r from-fitness-primary to-fitness-secondary hover:opacity-90"
-            onClick={() => handleAddBuddy(currentBuddy.id)}
-          >
-            Add Buddy
-          </Button>
-        </div>
-        
-        {selectedBuddies.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 text-center"
-          >
-            <p className="text-sm font-medium bg-fitness-primary/10 inline-block px-4 py-2 rounded-full">
-              {selectedBuddies.length} {selectedBuddies.length === 1 ? 'buddy' : 'buddies'} added
-            </p>
-          </motion.div>
-        )}
-        
-        {isLastBuddy && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8 text-center p-6 bg-gradient-to-r from-fitness-primary/10 to-fitness-secondary/10 rounded-lg"
-          >
-            <p className="font-medium text-lg">That's all the matches for now!</p>
-            <p className="text-sm text-muted-foreground mt-2">Check back later for more buddy suggestions</p>
-          </motion.div>
-        )}
-      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {suggestedWorkouts.map(workout => (
+                <Card key={workout.id} className="overflow-hidden hover:shadow-lg transition-all">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{workout.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-1">
+                          <MapPin size={14} /> {workout.location}
+                        </CardDescription>
+                      </div>
+                      <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 rounded-full px-2 py-1">
+                        {workout.type}
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <p className="text-sm mb-3">{workout.description}</p>
+                    <div className="grid grid-cols-3 text-sm mb-2 gap-2">
+                      <div className="flex items-center gap-1">
+                        <Clock size={14} className="text-muted-foreground" />
+                        <span>{workout.time}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Dumbbell size={14} className="text-muted-foreground" />
+                        <span>{workout.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users size={14} className="text-muted-foreground" />
+                        <span>{workout.participants} people</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <Button 
+                      onClick={() => joinWorkout(workout.id)}
+                      className="w-full bg-fitness-primary hover:bg-fitness-primary/90"
+                    >
+                      Join Workout
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" size="lg" className="gap-2">
+                <Calendar size={18} />
+                Create New Group Workout
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
 
-export default BuddyMatch;
+export default BuddyMatchComponent;
