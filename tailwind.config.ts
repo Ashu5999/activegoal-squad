@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'poppins': ['Poppins', 'sans-serif'],
+				'montserrat': ['Montserrat', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -64,9 +68,9 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				fitness: {
-					primary: '#0EA5E9', // Bright blue/teal
-					secondary: '#38BDF8', // Lighter blue
-					accent: '#3ABFF8', // Cyan accent
+					primary: '#8B5CF6', // Changed to a purple shade
+					secondary: '#C4B5FD', // Lighter purple
+					accent: '#A78BFA', // Medium purple
 					dark: '#1A1F2C', // Dark charcoal
 					light: '#F9FAFB', // Light background
 					success: '#22C55E', // Green for success/completion
@@ -114,3 +118,4 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
