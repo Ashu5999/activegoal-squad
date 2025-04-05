@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import NavBar from "@/components/NavBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, MessageSquare, ThumbsUp, UserPlus } from "lucide-react";
+import { Check, MessageSquare, ThumbsUp, UserPlus, X, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 interface NotificationProps {
+  id: number;
   type: 'like' | 'comment' | 'request' | 'goal';
   user: {
     name: string;
@@ -19,8 +20,9 @@ interface NotificationProps {
   read?: boolean;
 }
 
-const notifications: NotificationProps[] = [
+const initialNotifications: NotificationProps[] = [
   {
+    id: 1,
     type: 'like',
     user: {
       name: 'Jessica Lee',
@@ -30,6 +32,7 @@ const notifications: NotificationProps[] = [
     content: 'liked your workout.',
   },
   {
+    id: 2,
     type: 'comment',
     user: {
       name: 'David Kim',
@@ -39,6 +42,7 @@ const notifications: NotificationProps[] = [
     content: 'commented on your workout: "Great progress! Keep it up!"',
   },
   {
+    id: 3,
     type: 'request',
     user: {
       name: 'Maria Garcia',
@@ -48,6 +52,7 @@ const notifications: NotificationProps[] = [
     content: 'sent you a buddy request.',
   },
   {
+    id: 4,
     type: 'goal',
     user: {
       name: 'System',
@@ -59,7 +64,12 @@ const notifications: NotificationProps[] = [
   },
 ];
 
-const NotificationItem = ({ type, user, time, content, read }: NotificationProps) => {
+interface NotificationItemProps extends NotificationProps {
+  onAccept: (id: number) => void;
+  onDecline: (id: number) => void;
+}
+
+const NotificationItem = ({ id, type, user, time, content, read, onAccept, onDecline }: NotificationItemProps) => {
   const getIcon = () => {
     switch (type) {
       case 'like': return <ThumbsUp size={16} className="text-fitness-primary" />;
@@ -80,6 +90,7 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
   
   const handleAccept = (e: React.MouseEvent) => {
     e.stopPropagation();
+    onAccept(id);
     toast.success(`You are now buddies with ${user.name}!`, {
       description: "You can now schedule workouts together.",
       position: "bottom-right",
@@ -88,6 +99,7 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
   
   const handleDecline = (e: React.MouseEvent) => {
     e.stopPropagation();
+    onDecline(id);
     toast.error(`Buddy request from ${user.name} declined.`, {
       description: "You won't receive notifications from this user.",
       position: "bottom-right",
@@ -123,6 +135,7 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
                 className="bg-fitness-primary hover:bg-fitness-secondary"
                 onClick={handleAccept}
               >
+                <Check size={16} className="mr-1" />
                 Accept
               </Button>
               <Button 
@@ -130,6 +143,7 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
                 variant="outline"
                 onClick={handleDecline}
               >
+                <X size={16} className="mr-1" />
                 Decline
               </Button>
             </div>
@@ -141,7 +155,15 @@ const NotificationItem = ({ type, user, time, content, read }: NotificationProps
 };
 
 const Notifications = () => {
-  const [notificationsList, setNotificationsList] = useState(notifications);
+  const [notificationsList, setNotificationsList] = useState(initialNotifications);
+  
+  const handleAccept = (id: number) => {
+    setNotificationsList(prev => prev.filter(notification => notification.id !== id));
+  };
+  
+  const handleDecline = (id: number) => {
+    setNotificationsList(prev => prev.filter(notification => notification.id !== id));
+  };
   
   const markAllAsRead = () => {
     setNotificationsList(prev => 
@@ -159,17 +181,32 @@ const Notifications = () => {
             <h1 className="text-3xl font-bold mb-2">Notifications</h1>
             <p className="text-muted-foreground">Stay updated with your fitness buddies</p>
           </div>
-          <Button variant="outline" onClick={markAllAsRead}>Mark All as Read</Button>
+          <Button variant="outline" onClick={markAllAsRead}>
+            <Bell size={16} className="mr-2" />
+            Mark All as Read
+          </Button>
         </div>
         
         <Card>
           <CardContent className="p-0 divide-y">
-            {notificationsList.map((notification, index) => (
-              <React.Fragment key={index}>
-                <NotificationItem {...notification} />
-                {index < notificationsList.length - 1 && <Separator />}
-              </React.Fragment>
-            ))}
+            {notificationsList.length > 0 ? (
+              notificationsList.map((notification, index) => (
+                <React.Fragment key={notification.id}>
+                  <NotificationItem 
+                    {...notification} 
+                    onAccept={handleAccept} 
+                    onDecline={handleDecline}
+                  />
+                  {index < notificationsList.length - 1 && <Separator />}
+                </React.Fragment>
+              ))
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">
+                <Bell size={32} className="mx-auto mb-4 text-muted-foreground/50" />
+                <h3 className="text-lg font-medium mb-1">No Notifications</h3>
+                <p>You're all caught up! Check back later for updates.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
